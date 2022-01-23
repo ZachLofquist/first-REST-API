@@ -2,7 +2,9 @@ const express = require('express');
 const res = require('express/lib/response');
 const app = express();
 const port = 5000;
+const cors = require('cors');
 
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -44,6 +46,9 @@ const users = {
     ]
 }
 
+// app.get('/users', (req, res) => {
+//     res.send(users);
+// });
 
 app.get('/users', (req, res) => {
     const name = req.query.name;
@@ -57,9 +62,68 @@ app.get('/users', (req, res) => {
     }
 });
 
-const findUserByName = (name) => {
-    return users['users_list'].filter( (user) => user['name'] === name);
+function findUserByID(id) {
+    return users['users_list'].find( (user) => user['id'] === id);
 }
+
+app.get('/users/:id', (req, res) => {
+    const id = req.params.id;
+    let result = findUserByID(id);
+    if (result === undefined || result.length == 0)
+        res.status(404).send('Resource not found.');
+    else {
+        result = {users_list: result};
+        res.send(result);
+    }
+});
+
+function addUser(user) {
+    users['users_list'].push(user);
+}
+
+app.post('/users', (req, res) => {
+    const userToAdd = req.body;
+    addUser(userToAdd);
+    res.status(200).end();
+});
+
+
+function deleteUser(user) {
+    const index = users['users_list'].indexOf(user)
+    if (index > -1) {
+        users['users_list'].splice(index, 1)
+    }
+}
+
+app.delete('/users', (req, res) => {
+    const id = req.body.id;
+    let result = findUserByID(id);
+    if (result === undefined || result.length == 0)
+        res.status(404).send("ID not found");
+    else {
+        deleteUser(result);
+    }
+    res.status(200).end();
+});
+
+function findUserByIDJob(id, job) {
+    return users['users_list'].find( (user) => (user['id'] === id && user['job'] === job));
+}
+
+app.get('/users/:id/:job', (req, res) => {
+    const id = req.params.id;
+    const job = req.params.job;
+    let result = findUserByIDJob(id, job);
+    if (result === undefined || result.length == 0)
+        res.status(404).send('Resource not found.');
+    else {
+        result = {users_list: result};
+        res.send(result);
+    }
+});
+
+
+
 
 
 
