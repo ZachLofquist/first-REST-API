@@ -113,7 +113,7 @@ function deleteUser(user) {
     }
 }
 
-app.delete('/users', (req, res) => {
+app.delete('/users', (req, res) => {                // This shouldn't be called by frontend
     //console.log(req.params)
     const id = req.body.id;
     let result = findUserByID(id);
@@ -122,7 +122,7 @@ app.delete('/users', (req, res) => {
     else {
         deleteUser(result);
     }
-    res.status(200).end();
+    res.status(204).end();
 });
 
 app.delete('/users/:id', (req, res) => {
